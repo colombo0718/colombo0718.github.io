@@ -1,0 +1,94 @@
+<html>
+  <head>
+    <title>MHD friedrichs diagram</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <!-- <script language="javascript" src="../../lib_js/jquery-1.9.1.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>  
+    <script language="javascript" src="jquery.flot.js"></script>
+    <script language="javascript" src="jquery.flot.symbol.js"></script>
+    <script language="javascript" src="latexit.js"></script>
+    <script language="javascript" src="mhd_fgd_12.js"></script> 
+  </head>
+  <body link=#0000ff vlink=#0000aa bgcolor=#ffffdd><center>
+    <h2>Friedrichs Diagram of the MHD Waves</h2>
+    <table >
+      <tr>
+        <th>
+          Phase Velocity 
+          <div id="phase_ph" style="width:500px;height:500px;"></div>
+        </th> 
+        <th>
+          Group Velocity 
+          <div id="group_ph" style="width:500px;height:500px;"></div>
+        </th> 
+      </tr>
+      <tr>
+        <th colspan=2>
+          <form name="mhd_wave">
+            C<sub>S0</sub>/C<sub>A0</sub>:
+            <input type=text name="beta" value="1.0"></input> 
+            <input type=button value="plot" onclick="fgd()" ></input>
+          </form>
+        </th>
+      </tr>
+    <script>
+      fgd()
+    </script>
+      <table ><tr><td>
+      說明：<br>  
+      此圖是磁流體的波速在速度空間中，隨波傳播方向與背景磁場方向夾角的分佈，<br>
+      定參考速度為當下的艾爾文波速，背景磁場方向指向正Y軸方向，
+      C<sub>S0</sub>/C<sub>A0</sub>值自訂，<br>左圖為相速度，右圖則為群速度。<br>
+      <br>
+      公式：<br>
+      <br>
+      <div lang="latex">
+      \left(\frac{w^2}{k^2}\right)_{ _{slow}^{fast}}=
+      \left(v_{ph}^2\right)_{ _{slow}^{fast}}=
+      \frac{1}{2}  \left\{\left(C_{A0}^2+C_{s0}^2\right)
+      \pm\sqrt{\left(C_{A0}^2+C_{s0}^2\right)^2-4C_{A0}^2C_{s0}^{2}\cos^{2}\theta}\right\}
+      </div>
+      <br>
+      <div lang="latex">
+      \left({\vec{v}_{g}}\right)_{ _{slow}^{fast}}=
+      \hat{k}\frac{\partial w}{\partial k}+\hat{\theta}\frac{\partial w}{k \partial\theta}
+     =\hat{k}\left(v_{ph}\right)_{ _{slow}^{fast}}\pm
+      \hat{\theta}\frac{C_{A0}^2C_{s0}^{2}\cos\theta\sin\theta}
+      {\left(v_{ph}\right)_{ _{slow}^{fast}}
+       \sqrt{\left(C_{A0}^2+C_{s0}^2\right)^2-4C_{A0}^2C_{s0}^{2}\cos^{2}\theta}}
+      </div>
+      <br>
+      <div lang="latex">
+      L'H\hat{o}pital\left[\left(v_{g\theta}\right)_{ _{slow}^{fast}}\right]=
+      \pm\sqrt{\frac{C_{A0}^2C_{S0}^{2}\cos2\theta}
+      {4\left(v_{ph}^2\right)_{ _{slow}^{fast}}
+      \pm\sqrt{\left(C_{A0}^2+C_{S0}^2\right)^2-4C_{A0}^2C_{S0}^{2}\cos^{2}\theta}}}
+      </div>
+      <br>   
+      版本：<br>  
+      <a href='mhd_fgd_10.js' style='text-decoration:none'>1.0</a> in 2013/02/19<br>
+      初學flot語法後所寫的第一支程式，僅以36個資料點繪圖，稍有雛型仍需改進，<br>
+      運算式極其冗長，雖於一般情況無誤，但在群速度的運算上遇到奇異點時，<br>
+      以竄改數據避免之(詳見第5.13.行)，此法雖於圖形上雖難見瑕疵，卻是極不可取，<br>
+      幸得呂師糾正，以儆效尤。<br>
+
+      <a href='mhd_fgd_11.js'style='text-decoration:none'>1.1</a> in 2013/02/22<br> 
+      以羅必答法導出群速度在奇異點時的值，資料點數目增為90點，並以打點表示，<br>
+      為求美觀保留連結線段，但不表示實際存在，增設重複出現的公式片段為變數，<br>
+      大幅簡化運算試長度(詳見第35.~37.行)，並以快波的最大速度作出正方框架，<br>
+      另外取消了不必要的模式選擇框架。<br>
+      
+      <a href='mhd_fgd_12.js'style='text-decoration:none'>1.2</a> in 2013/03/04 <br>
+      以物件宣告的方式替代javascript所欠缺的傳址呼叫功能，以加強程式的結構性，<br>
+      成功移除慢波群速度圖中間不必要的連線，並開始加入文字紀錄，引用LaTeX語法，<br>
+      至此版面雖陽春但基本該有的東西皆已補齊，先求有再求好。<br>
+      <br>
+      參考：<br>
+      http://www.ss.ncu.edu.tw/~lyu/lecture_files_en/<br>
+      http://taiwantc.com/js/index.html<br>
+      http://www.flotcharts.org/<br>
+      http://www.forkosh.com/mimetextutorial.html<br>
+    </td></tr></table>
+
+  </center></body> 
+</html

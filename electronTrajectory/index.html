@@ -1,0 +1,290 @@
+<html>
+<head>
+<title>electron trajectory</title>
+  <script src="pre3d.js"></script>
+  <!-- <script src="pre3d/pre3d_shape_utils.js"></script> -->
+  <!-- <script src="pre3d/pre3d_path_utils.js"></script> -->
+  <!--script src="demo_utils.js"></script>
+  <script src="../jslib/pre3d/myPre3dLib/Coordinate.js"></script>
+  <script src="../jslib/pre3d/myPre3dLib/TrajecoryObject.js"></script-->
+  <script src="showTrajectoryLib.js"></script>    
+  <script src="trajectory.js" id='tr1'></script>
+  <!-- <script src='jquery-ui-1.10.4/js/jquery-1.10.2.js'></script>   -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>  
+  <!-- <script src='jquery-ui-1.10.4/js/jquery-ui-1.10.4.js'></script>    -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/jquery-ui.min.js"></script>
+  <link rel="stylesheet" href='jquery-ui-1.10.4.min.css'></link>
+
+<script>
+  $(function() {
+  //window.addEventListener('load',function(){
+    /* 
+    function makeDialog(id,start,end,title){
+      var unit=Math.floor(Math.min(window.innerHeight/4
+                                  ,window.innerWidth/6))
+      div=document.createElement('div')
+      div.id='dialog-'+id
+      div.width=(end[0]-start[0])*unit-7
+      div.height=(end[1]-start[1])*unit
+      document.body.appendChild(div)
+      
+      $('#'+div.id).dialog(
+      {title:(title==undefined? id: title),
+       width:(end[0]-start[0])*unit-7, 
+       height:(end[1]-start[1])*unit,
+       position:[start[0]*unit,start[1]*unit],
+       //resizable:false,
+       //draggable:false,
+      });
+      return div
+    }
+    function makeCanvasDialog(id,start,end,title){
+      var div=makeDialog(id,start,end,title)
+      var cnv=document.createElement('canvas')
+      cnv.style.position = "absolute";
+      cnv.id     = 'canvas-'+id;
+      cnv.width  = div.width-40;
+      cnv.height = div.height-50;
+      //document.body.appendChild(cnv)
+      div.appendChild(cnv)
+      return cnv
+    } 
+    function makeCodeDialog(id,start,end,title){
+      var div=makeDialog(id,start,end,title)
+      var cod=document.createElement('code')
+      cod.id='code-'+id;
+      div.appendChild(cod)    
+    }
+    */  
+    //QQ=makeCanvasDialog('test',[1,1],[2,2],'new')
+    //document.getElementById('detail_content').innerHTML=QQ.id
+    /*
+    $( "#dialog-global" ).dialog(
+      {width:800-7, 
+       height:160,
+       resizable:false,
+       position:[0,0],
+       draggable:false,
+      });
+     
+  //});    
+  //$(function() {      
+    $('#dialog-local').dialog(
+      {width:640-7,
+       height:480,
+       position:[0,160],
+       }
+      )
+    
+    $('#detail').dialog(
+      {width:160-7,
+       height:480,
+       position:[640,160],   
+      })
+    */  
+   makeCanvasDialog('global',[0,0],[5,1],'global trajectory') 
+   makeCanvasDialog('local',[0,1],[4,4],'local trajectory')
+   makeCodeDialog('detail',[4,1],[5,4],'detail')
+    /*
+    $("#buttons").buttonset()
+    $( "#but1" ).button(
+      {icons: {primary: "ui-icon-image"},
+       text: false
+      })
+    $( "#but2" ).button({
+      icons: {primary: "ui-icon-play"},
+      text: false
+    })
+    $( "#but3" ).button({
+      icons: {primary: "ui-icon-refresh"},
+      text: false
+    })
+    */
+    //$("#slider01").slider()
+    do_pre3d()
+    });
+  //});
+</script>
+<style> body{font:60% ""} </style>        
+</head>
+<body>       
+<!--div id='dialog-global'-->
+<!--div id='dialog-global' title="global trajectory">    
+    <canvas id="canvas-global" width="760" height="110"></canvas>
+</div-->
+<!--div id='dialog-local' title='local trajectory'>
+    <canvas id='canvas-local' width="600" height="430"></canvas>
+</di-->    
+<div id='detail' title='detail'>
+  <!--div id='buttons'>    
+  <button id="but1">save</button> 
+  <button id="but2">play</button>
+  <button id="but3">help</button>      
+  </div-->      
+  <code id='detail_content'></code>
+</div>    
+</body>
+<script>   
+function do_pre3d(){
+  /*    
+  //document.getElementById('detail_content').innerHTML=QQ
+  rdQQ=new Pre3d.Renderer(QQ)
+  //document.getElementById('detail_content').innerHTML=rdQQ
+  rdQQ.ctx.setFillColor(1, 0, 0, 1)
+  rdQQ.drawBackground()
+  //document.getElementById('detail_content').innerHTML=
+      document.getElementById('canvas-global')
+  */
+  
+  var canvas={global:document.getElementById('canvas-global'),
+              local :document.getElementById('canvas-local')}
+    
+  var renderer={global:new Pre3d.Renderer(canvas.global),
+                local :new Pre3d.Renderer(canvas.local)}
+  
+  var focusIn=0
+  var path = makeTrajectory(position)
+  var frame_global=makeCoordinate(-200,200,-200,200,0,2600,30)
+  showDetail(focusIn)
+  var redBox=makeBox({x:-50,y:-50,z:-100+position[focusIn].z},
+                     {x:50, y:50, z:100+position[focusIn].z})
+  renderer.global.transform.translate(0, 0, -1300)
+  renderer.global.transform.rotateY(Math.PI/2)
+  renderer.global.camera.focal_length = 10;
+  renderer.global.camera.transform.translate(0,0,-2500)    
+  function paint_global(){
+    renderer.global.ctx.setFillColor(1, 1, 1, 1);
+    renderer.global.drawBackground();
+    renderer.global.ctx.lineWidth = 1.2;
+    renderer.global.ctx.setStrokeColor(0x00 / 255, 0x00 / 255, 0x00 / 255, 1);  
+    renderer.global.drawPath(frame_global[1])
+    renderer.global.drawPath(frame_global[2])
+    renderer.global.drawPath(frame_global[3])
+    renderer.global.ctx.setStrokeColor(0x00 / 255, 0x00 / 255, 0xff / 255, 1);
+    //renderer.global.ctx.setFillColor(1, 0, 0, 0.3)  
+    renderer.global.drawPath(path); 
+    renderer.global.ctx.setStrokeColor(0xff / 255, 0x00 / 255, 0x00 / 255, 1);  
+    renderer.global.drawPath(redBox);  
+  }
+    
+//----------------------------------------------
+  function partialOrbit(ci){// ci: center index      
+    var po=new Pre3d.Path()
+    var fi //first index
+       ,ei //end index
+       ,oi=0 //orbit index 
+    po.points=position
+    po.curves=new Array
+    for(i=0;i<position.length;i++){
+      if(position[i].z > position[ci].z-100 &&
+         position[i].z < position[ci].z+100 ){ 
+        if(fi==null){fi=i} 
+        ei=i 
+        po.curves[oi]=new Pre3d.Curve(i,i,null);
+        oi+=1  
+      }
+    }
+    po.starting_point=fi
+    //document.getElementById('code-detail').innerHTML=fi+' '+ei  
+    return po 
+  }
+       
+  var frame_local=makeCartesianCoor({x:-50,y:-50,z:position[focusIn].z-100},
+                                {x:0,  y:0,  z:position[focusIn].z},
+                                {x:50, y:50, z:position[focusIn].z+100},4)
+  var partOrb=partialOrbit(focusIn)     
+  var cross  =makeParticle(position[focusIn],5,'cross')
+  var v_vector=makeArrow(position[focusIn],velocity[focusIn])
+  var e_vector=makeArrow(position[focusIn],electric[focusIn])
+  var b_vector=makeArrow(position[focusIn],magnetic[focusIn])
+  renderer.local.transform.rotateY(Math.PI/2)
+  renderer.local.camera.focal_length = 10
+  renderer.local.camera.transform.translate(0,0,-600)
+  function paint_local(){
+    renderer.local.ctx.setFillColor(1, 1, 1, 1);
+    renderer.local.drawBackground();
+    renderer.local.ctx.lineWidth = 1.5;
+    renderer.local.ctx.setStrokeColor(0x00 / 255, 0x00 / 255, 0x00 / 255, 1);  
+    renderer.local.drawPath(frame_local[1])
+    renderer.local.drawPath(frame_local[2])
+    renderer.local.drawPath(frame_local[3])
+    //renderer.local.ctx.lineWidth = 2;
+    renderer.local.ctx.setStrokeColor(0x00 / 255, 0x00 / 255, 0xff / 255, 1);
+    renderer.local.drawPath(partOrb); 
+    renderer.local.ctx.setStrokeColor(0xff / 255, 0x00 / 255, 0x00 / 255, 1);
+    renderer.local.drawPath(cross)
+    renderer.local.ctx.setStrokeColor(0x00 / 255, 0xff / 255, 0x00 / 255, 1);
+    renderer.local.drawPath(v_vector)
+    renderer.local.ctx.setStrokeColor(0xaa / 255, 0xaa / 255, 0x00 / 255, 1);
+    renderer.local.drawPath(e_vector)
+    renderer.local.ctx.setStrokeColor(0xaa / 255, 0x00 / 255, 0xaa / 255, 1);
+    renderer.local.drawPath(b_vector)
+  }
+    
+  paint_global();
+  paint_local();
+//=================================================
+ // document.getElementById('detail_content').innerHTML=//QQ
+  var x1=0,y1=0,x2=0,y2=0
+  function interact(m){
+  //var x1=0,y1=0,x2=0,y2=0
+    var ct1 = renderer.global.camera.transform
+    var ct2 = renderer.local.camera.transform        
+    if(!m.c)return;
+    switch(m.target){
+    case 'canvas-global':      
+      x1+=m.dx,y1+=m.dy
+      focusIn+=m.dx
+      if(focusIn<0 ||focusIn>position.length-1 ){focusIn-=m.dx}
+    break;  
+    case 'canvas-local':
+      x2+=m.dx,y1+=m.dy      
+    break;        
+    }
+    //document.getElementById('code-detail').innerHTML=focusIn
+    ct1.reset()    
+    ct1.rotateX(y1*0.01)
+    ct1.translate(0,0,-2500)
+    //----------------------
+    ct2.reset()
+    ct2.rotateX(y1*0.01)
+    ct2.rotateY(x2*0.01)
+    ct2.translate(0,0,-600)
+    renderer.local.transform.reset()
+    renderer.local.transform.rotateY(Math.PI/2)    
+    renderer.local.transform.translate(-position[focusIn].z,0,0)
+    //----------------------
+    redBox=makeBox({x:-50,y:-50,z:-100+position[focusIn].z},
+                   {x:50, y:50, z:100+position[focusIn].z})
+    partOrb=partialOrbit(focusIn)
+    frame_local=makeCartesianCoor({x:-50,y:-50,z:position[focusIn].z-100},
+                                  {x:0,  y:0,  z:position[focusIn].z},
+                                  {x:50, y:50, z:position[focusIn].z+100},4)
+    cross = makeParticle(position[focusIn],4,'cross')
+    v_vector=makeArrow(position[focusIn],Pre3d.Math.mulPoint3d(velocity[focusIn],3),3)
+    e_vector=makeArrow(position[focusIn],Pre3d.Math.mulPoint3d(electric[focusIn],10),3)
+    b_vector=makeArrow(position[focusIn],Pre3d.Math.mulPoint3d(
+        Pre3d.Math.addPoints3d(magnetic[focusIn],{x:0,y:0,z:-1})  ,100),3)
+    //-----------------------
+    /*
+    function showDetail(){
+      document.getElementById('code-detail').innerHTML=
+      'position<br>'+
+      'x: '+position[focusIn].x+'<br>'+
+      'y: '+position[focusIn].y+'<br>'+
+      'z: '+position[focusIn].z+'<br>'   
+    }
+    */
+    showDetail(focusIn)  
+    paint_global()
+    paint_local()
+    
+  }  
+  mouseEvents(canvas.global,interact)
+  mouseEvents(canvas.local,interact)  
+}
+
+//do_pre3d();
+
+</script>
+</html>
