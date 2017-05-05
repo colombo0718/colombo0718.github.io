@@ -22,7 +22,19 @@
 	<br>
 	<input type="button"><input type="button"><input type="button">
 	<br>
-
-</center>	
+</center>
+<script>
+	$(function(){
+		$("input").click(function(){
+			var color=$(this).css("background-color").toString()
+			console.log(color=='rgb(0, 255, 0)')
+			if(color=="rgb(0, 255, 0)"){
+  				$(this).css("background-color","#ff0000");
+  			}else{
+  				$(this).css("background-color","#00ff00");
+  			}	
+		});
+	})	
+</script>	
 </body>
 <html>	
