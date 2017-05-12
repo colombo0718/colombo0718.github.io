@@ -14,13 +14,13 @@
 </head>
 <body>
 <center>	
-	<input type="button"><input type="button"><input type="button">
+	<input id=' 0' type="button"><input id=' 4' type="button"><input id=' 8' type="button">
 	<br>
-	<input type="button"><input type="button"><input type="button">
+	<input id=' 1' type="button"><input id=' 5' type="button"><input id=' 9' type="button">
 	<br>
-	<input type="button"><input type="button"><input type="button">
+	<input id=' 2' type="button"><input id=' 6' type="button"><input id='10' type="button">
 	<br>
-	<input type="button"><input type="button"><input type="button">
+	<input id=' 3' type="button"><input id=' 7' type="button"><input id='11' type="button">
 	<br>
 	<code id='pl'></code>
 </center>
@@ -44,17 +44,20 @@
 		$('#pl').html(ret);
 
 		$("input").click(function(){
-			var color=$(this).css("background-color").toString()
-			console.log(color)
-			console.log(color=='rgb(0, 127, 0)')
+			var color=$(this).css("background-color").toString(),
+				ledid=$(this).attr("id")
+			// console.log(color)
+			// console.log(color=='rgb(0, 127, 0)')
 			if(color=="rgb(0, 127, 0)"){
   				$(this).css("background-color","#00ff00");
-  				var ret = cpf.request('[\"digitalWrite\",11,1]');
+  				var ret = cpf.request('[\"digitalWrite\",'+ledid+',1]');
   				$('#pl').html(ret);
+  				// $('#pl').html(ledid);
   			}else{
   				$(this).css("background-color","#007f00");
-  				var ret = cpf.request('[\"digitalWrite\",11,0]');
+  				var ret = cpf.request('[\"digitalWrite\",'+ledid+',0]');
   				$('#pl').html(ret);
+  				// $('#pl').html(ledid);
   			}	
 		});
 	})	
