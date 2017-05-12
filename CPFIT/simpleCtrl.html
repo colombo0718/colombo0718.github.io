@@ -29,6 +29,7 @@
 
 	$(function(){	
 		var ret = cpf.request('[\"resetPin\"]'
+			+',[\"setPinMode\",\"digital\", 0,\"OUTPUT\"]'
 			+',[\"setPinMode\",\"digital\", 1,\"OUTPUT\"]'
 			+',[\"setPinMode\",\"digital\", 2,\"OUTPUT\"]'
 			+',[\"setPinMode\",\"digital\", 3,\"OUTPUT\"]'
@@ -39,8 +40,7 @@
 			+',[\"setPinMode\",\"digital\", 8,\"OUTPUT\"]'
 			+',[\"setPinMode\",\"digital\", 9,\"OUTPUT\"]'
 			+',[\"setPinMode\",\"digital\",10,\"OUTPUT\"]'
-			+',[\"setPinMode\",\"digital\",11,\"OUTPUT\"]'
-			+',[\"setPinMode\",\"digital\",12,\"OUTPUT\"]');
+			+',[\"setPinMode\",\"digital\",11,\"OUTPUT\"]');
 		$('#pl').html(ret);
 
 		$("input").click(function(){
