@@ -22,8 +22,12 @@
 	<br>
 	<input type="button"><input type="button"><input type="button">
 	<br>
+	<code id='pl'></code>
 </center>
+
 <script>
+
+	$(function(){	
 		var ret = cpf.request('["resetPin"]'
 			+',["setPinMode","digital", 1,"OUTPUT"]'
 			+',["setPinMode","digital", 2,"OUTPUT"]'
@@ -37,8 +41,7 @@
 			+',["setPinMode","digital",10,"OUTPUT"]'
 			+',["setPinMode","digital",11,"OUTPUT"]'
 			+',["setPinMode","digital",12,"OUTPUT"]');
-
-	$(function(){	
+		$('#pl').html(ret);
 
 		$("input").click(function(){
 			var color=$(this).css("background-color").toString()
@@ -46,8 +49,12 @@
 			console.log(color=='rgb(0, 127, 0)')
 			if(color=="rgb(0, 127, 0)"){
   				$(this).css("background-color","#00ff00");
+  				var ret = cpf.request('["digitalWrite",11,1]');
+  				$('#pl').html(ret);
   			}else{
   				$(this).css("background-color","#007f00");
+  				var ret = cpf.request('["digitalWrite",11,0]');
+  				$('#pl').html(ret);
   			}	
 		});
 	})	
