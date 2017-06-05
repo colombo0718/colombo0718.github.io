@@ -1,0 +1,22 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>CPF-DashBoard</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+	<script src="jquery.knob.js"></script>
+	<style>
+	</style>
+</head>
+<body>
+<img src='acercpf.svg'>
+<input type="text" value="75" class="dial" data-width='100%' data-fgColor="#66CC66" data-angleOffset=-125 data-angleArc=250>
+
+<script>
+	$(function() {
+		$(".dial").knob({'max':255,'change':function(v){
+			cpf.set("fan",v);
+		}});
+	});
+</script>
+</body>
