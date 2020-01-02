@@ -1,0 +1,107 @@
+<html>
+<head>
+<title> EM Wave 3D </title>
+  <script src="https://github.com/deanm/pre3d/blob/master/pre3d.js"></script>
+  <script src="https://github.com/deanm/pre3d/blob/master/pre3d_shape_utils.js"></script>
+  <script src="https://github.com/deanm/pre3d/blob/master/pre3d_path_utils.js"></script>
+  <script src="demo_utils.js"></script>
+  <script src="Coordinate.js"></script>
+  <script src="emWave_data.js"></script>
+</head>
+<body>
+<center>
+<canvas id="canvas" width="1000" height="400"></canvas>
+</center>
+<p id='pp'>
+EM wave 3D model <br>
+red   : electric field <br>
+green : magnetic field <br>
+ctrl+ mouse slide : <br>
+time pass(right) <br>
+time back(left) <br>
+collapse in the end 
+</p>
+<script>
+var i=0
+var t=0
+
+function start3d() {
+  var screen_canvas = document.getElementById('canvas');
+  var renderer = new Pre3d.Renderer(screen_canvas);
+
+  oo={x:-1,y:0,z:0};
+  xx={x:20,y:0,z:0};
+  yy={x:0,y:2,z:0};
+  zz={x:0,y:0,z:2};
+
+//  var spiral = Pre3d.PathUtils.makeSpiral(5);
+//  var spiral = Pre3d.PathUtils.makeLine(p0,p1);
+  var xAxis = makeArrow({x:-10,y:0,z:0},xx);
+  var yAxis = makeArrow({x:0,y:-1,z:0},yy);
+  var zAxis = makeArrow({x:0,y:0,z:-1},zz);
+
+  var l=s.length
+  var eWave = new Array()
+  var bWave = new Array()
+
+  function makeWave(){ 
+    for(var i=0;i<l;i++){
+      eWave[i]=makeArrow(s[i],e[t][i]);
+      bWave[i]=makeArrow(s[i],b[t][i]);
+    }
+  }
+  makeWave() 
+  screen_canvas.addEventListener('mousemove',
+  function(e){
+    console.log(e.movementX)
+    if(e.ctrlKey){
+      var mouseDx=e.movementX || e.mozMovementX || e.webkitMovementX || 0;
+      if(mouseDx>0){t=t+1;makeWave();draw();}
+      if(mouseDx<0){t=t-1;makeWave();draw();}
+      // if(e.webkitMovementX>0){t=t+1;makeWave();draw();}
+      // if(e.webkitMovementX<0){t=t-1;makeWave();draw();}
+    }
+  })
+  // Setup the canvas context for stroking the spiral blue and double thick.
+//  renderer.ctx.setStrokeColor(0x00 / 255, 0xff / 255, 0x00 / 255, 1);
+//  renderer.ctx.lineWidth = 1;
+
+
+  function draw() {
+//    i=i+1
+//    document.getElementById('pp').innerHTML=eWave[i]
+ 
+    renderer.transform.reset();
+    renderer.transform.translate(0, 0, 0);  // Center over the origin.
+//    renderer.transform.rotateX(-Math.PI*90/180);
+    // Elongate our spiral a bit (stretch in the z direction).
+//    renderer.transform.scale(1, 1, 1);
+    // White background.
+    renderer.ctx.setFillColor(1, 1, 1, 1);
+    renderer.drawBackground();
+
+    renderer.ctx.setStrokeColor(0x00 / 255, 0x00 / 255, 0xff / 255, 1);
+    renderer.drawPath(xAxis);
+    renderer.ctx.setStrokeColor(0x00 / 255, 0x00 / 255, 0xff / 255, 1);
+    renderer.drawPath(yAxis);
+    renderer.ctx.setStrokeColor(0x00 / 255, 0x00 / 255, 0xff / 255, 1);
+    renderer.drawPath(zAxis);
+    for(var i=0;i<l;i++){
+      renderer.ctx.setStrokeColor(0xff / 255, 0x00 / 255, 0x00 / 255, 1);
+      renderer.drawPath(eWave[i]);
+      renderer.ctx.setStrokeColor(0x00 / 255, 0xff / 255, 0x00 / 255, 1);
+      renderer.drawPath(bWave[i]);
+    }
+  }
+
+  renderer.camera.focal_length = 4;
+  DemoUtils.autoCamera(renderer, 0, 0, -16, 0, 0, 0, draw);
+
+  draw();
+}
+
+start3d();
+//document.getElementById('pp').innerHTML=l
+</script>
+</body>
+</html>
