@@ -1,0 +1,92 @@
+<html>
+<head>
+    <meta content="text/html; charset=utf-8">
+</head>
+<body>
+</body>
+<script>
+    var name=new Array()
+    name=[
+        "cars_y","cars_b",
+        "cats_y","cats_b",
+        "draw_y","draw_b",
+        "fish_y","fish_b",
+        "hors_y","hors_b",
+        "pens_y","pens_b",
+        "ship_y","ship_b",
+        "time_y","time_b"
+    ];
+    var used=[0,0,0,0,0,  0,0,0,0,0,  0,0,0,0,0, 0];
+
+    var init=function(){
+        document.write('<table ><tr><td valign="top">')
+        for(var i=1;i<=16;i++){
+            document.write('<input type="image" id="'+i+'" src="back.png" onclick="flop(this)"></input>')
+            if(i%4==0){document.write('<br>')}
+        } 
+        document.write('</td><td valign="top"><font id="log" size=5>按下[space]後發牌<br>記憶翻牌遊戲</font></td></tr></table>') 
+    }
+
+    var start,end
+    var rebo=function(){
+        var i=1
+        used=[0,0,0,0,0,  0,0,0,0,0,  0,0,0,0,0, 0]
+        while(i<=16){
+            n=Math.floor(Math.random()*16)
+            if(used[n]==1){continue}
+            document.getElementById(i).src=name.split(',')[n]+'.png'
+            document.getElementById(i).class=name.split(',')[n]
+            used[n]=1
+            i+=1
+        }
+        ans=0
+        start=new Date();
+        document.getElementById('log').innerHTML=('五秒後蓋牌');
+        prin(5)
+        setTimeout('prin(4)',1000)
+        setTimeout('prin(3)',2000)
+        setTimeout('prin(2)',3000)
+        setTimeout('prin(1)',4000)
+        setTimeout('prin("開始點選")',5000)
+        setTimeout('for(i=1;i<=16;i++){document.getElementById(i).src="back.png"}',5000)
+    }
+    // rebo()
+    var befo=0,bid,cid,ans=0
+    var flop=function(card){
+        if(ans==8){return}
+        card.src=card.class+'.png'
+        if(befo==0){
+            befo=card
+        }else{
+            if(befo.src.split('_')[0]==card.src.split('_')[0]){
+                prin('正確')
+                ans+=1
+            }else{
+                prin('錯誤')
+                bid=befo.id
+                cid=card.id
+                setTimeout(
+                    'document.getElementById(bid).src="back.png";'+
+                    'document.getElementById(cid).src="back.png";',
+                500)
+            }
+            befo=0
+            if(ans==8){
+                end=new Date();
+                var second=end.getSeconds()-start.getSeconds()
+                prin('總共費時'+second+'秒')
+                prin('按下[space]後重新開始<br>遊戲結束')
+            }   
+        }
+    }
+
+    var prin=function(str){
+        var content=document.getElementById('log').innerHTML
+        document.getElementById('log').innerHTML=str+'<br>'+content
+    }
+
+    init()
+    document.addEventListener("keydown",function(){rebo()});
+
+</script>
+</html>

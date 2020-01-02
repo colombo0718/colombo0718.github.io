@@ -1,0 +1,84 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta content="text/html; charset=utf-8">
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+</head>
+<body>
+    <div id="chart" style="height: 100%; width: 50%;"></div>
+    <div id='panel' style="height: 100%; width: 50%; left: 50%">
+        <center><h2>多項式 控制板</h2></center>
+        <p>最高次：<input id='ord' type='number' value=3 style="width: 40px;" min=0 max=9 onclick='build()'></input></p>
+        <font id='equ' face='monospace'></font>
+        <p id='coe'></p>
+        <p id='bun'>
+            下邊界：<input id='lo' type='number' value=-5 style="width: 40px;" step=0.1 onclick='calcu()()'>
+            上邊界：<input id='up' type='number' value=5 style="width: 40px;" step=0.1 onclick='calcu()()'>
+        </p>
+    </div> 
+</body>
+<script>
+        output=document.getElementById('panel')
+        output.style.position = "absolute";
+        output.style.left = window.innerWidth*0.7;
+
+    var plot = function () {
+        var chart = new CanvasJS.Chart("chart",
+        {
+            title:{text: "polynomial"},
+            data:[
+                {type: "line",dataPoints: points}
+            ]
+        });
+        chart.render();
+    }
+
+    var a,points,max,min
+    var calcu=function(){
+        a=[],points=[]
+        max=document.getElementById('up').value-0
+        min=document.getElementById('lo').value-0
+        dx=(max-min)/100
+        console.log(max,min,dx)
+
+        for(var i=0;i<=order;i++){ 
+            a[i]=document.getElementById('a'+i).value
+        }
+        console.log(a)
+
+        for(var j=min; j<=max; j+=dx){
+            console.log(j)
+            var h=0
+            for(var i=0;i<=order;i++){ 
+                h+=a[i]*Math.pow(j,order-i)
+                console.log(i)
+            }
+            points.push({x:j,y:h})
+        }
+        plot()
+    }  
+
+    var order=3
+    var build=function(){
+        order=document.getElementById('ord').value
+        document.getElementById('coe').innerHTML=''
+        var equation='f(x) = '
+        for(var i=0;i<=order;i++){ 
+            console.log(i)
+            equation+='a'+i+'*x^'+ (order-i)
+            equation+= i==order ? '' : ' + ' 
+            document.getElementById('coe').innerHTML+=
+                'a'+i+' = <input id="a'+i+'" type="number" style="width: 40px;" value="0" step=0.1 onclick="calcu()"></input><br>'
+        }
+        document.getElementById('equ').innerHTML=equation
+        document.getElementById('up').value=5
+        document.getElementById('lo').value=-5
+        calcu()
+    }
+
+
+
+
+    build()
+</script>
+</html>

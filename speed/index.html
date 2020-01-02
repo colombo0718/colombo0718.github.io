@@ -1,0 +1,168 @@
+<html>
+<head>
+    <meta content="text/html; charset=utf-8">
+    <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    </style>
+</head>
+<body>
+    <canvas id="can" width="150" height="150"></canvas>
+    <div id='out'><font id='log' size=5 face='monospace'></font></div>
+</body>
+<script>
+
+    var canvas,ctx
+
+    var init=function(){
+        canvas=document.getElementById('can')
+        canvas.width=window.innerWidth*0.7
+        canvas.height=window.innerHeight
+        ctx = canvas.getContext('2d');
+
+        output=document.getElementById('out')
+        output.style.position = "absolute";
+        output.style.left = window.innerWidth*0.7;
+        output.style.top = 0;
+        output.style.width = window.innerWidth*0.3
+        output.style.height = window.innerHeight
+
+        document.addEventListener("contextmenu", function(e){
+        e.preventDefault();
+        }, false);
+    }
+    init()
+
+    var prin=function(str){
+        var content=document.getElementById('log').innerHTML
+        document.getElementById('log').innerHTML=str+'<br>'+content
+    }
+
+    var game
+    var rebo=function(){
+        document.getElementById('log').innerHTML=''
+        prin('點擊圓點後開始測試')
+        prin('---------------')
+        prin('若無字母則須按[Space]鍵')
+        prin('包含[R],[E],[W],[Q]等鍵')
+        prin('點擊前須按下圓點中對應字母')
+        prin('紅色左鍵/黃色右鍵')
+        prin('計算一分鐘內正確點擊圓點次數')
+        prin('規則:')
+        prin('[手速測試器]')
+        game=0
+    }
+    rebo()
+
+
+    var x,y,k,m
+    var setCheckPoint=function(){
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        presskey=-1
+        x=20+Math.random()*(window.innerWidth*0.7-40)
+        y=20+Math.random()*(window.innerHeight-40)
+        k=Math.floor(Math.random()*5)
+        m=Math.floor(Math.random()*2)*2+1
+
+        ctx.beginPath();
+        ctx.arc(x,y,10,0,2*Math.PI);
+        ctx.fillStyle = m==1?"rgb(255,0,255)":"rgb(255,255,0)";
+        ctx.strokeStyle = 'black';
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = 'black';
+        ctx.font = '16pt monospace';
+        switch(k){
+            case 0:
+            ctx.fillText(" ", x-6, y+7);;break;
+            case 1:
+            ctx.fillText("R", x-6, y+7);;break;
+            case 2:
+            ctx.fillText("E", x-6, y+7);;break;
+            case 3:
+            ctx.fillText("W", x-6, y+7);;break;
+            case 4:
+            ctx.fillText("Q", x-6, y+7);;break;
+        }
+    }
+    setCheckPoint()
+
+    var res,t0,t1,n,sec,reci
+    canvas.addEventListener('mousedown',function(e){
+        res=''
+        if(game==0){ // game start
+            game=1 
+            n=0
+            t0=new Date()
+            document.getElementById('log').innerHTML=''
+            setCheckPoint()
+            reci=setTimeout('end()',60000)
+            return
+        }else if(game==-1){ // game stop 
+            return
+        }else{ // game running
+            t1=new Date()
+            n+=1;
+            res+=n<10?'0'+n+'. ':n+'. '
+            sec=(t1.getTime()-t0.getTime())/1000
+            sec=sec<10 ? '0'+sec : sec+''
+            sec=sec.length==5 ? sec+'0' : sec
+            sec=sec.length==4 ? sec+'00' : sec
+            sec=sec.length==2 ? sec+'.000' : sec
+            res+=sec+'s '
+        }   
+
+        if(e.which!=m) {res+='mouses:X '}else{res+='mouses:O '}
+        if(presskey!=k){res+='botton:X '}else{res+='botton:O '}
+        if(dr>10)      {res+='cursor:X '}else{res+='cursor:O '}
+        prin(res)
+        setCheckPoint()
+        // console.log(t1.getTime()-t0.getTime())
+    })
+
+    var x0,y0,x1,y1,dx,dy,dr
+    canvas.addEventListener('mousemove',function(e){
+        x1=e.pageX;y1=e.pageY
+        ctx.beginPath();
+        ctx.moveTo(x0,y0);
+        ctx.lineTo(x1,y1);
+        ctx.strokeStyle = 'rgb(0,255,255)';
+        ctx.stroke();
+        x0=x1;y0=y1
+        dx=Math.abs(x-e.pageX)
+        dy=Math.abs(y-e.pageY)
+        dr=Math.sqrt(dx*dx+dy*dy)
+    })
+
+    var presskey
+    document.addEventListener('keydown',function(e){
+        switch(e.key){
+            case ' ':
+            presskey=0;break;
+            case 'r':
+            presskey=1;break;
+            case 'e':
+            presskey=2;break;
+            case 'w':
+            presskey=3;break;
+            case 'q':
+            presskey=4;break;
+            case 'Escape':
+            clearTimeout(reci)
+            rebo();break;
+        }
+    })
+
+    var end=function(){
+        prin('測試結束')
+        prin('按下[Esc]後重製')
+        game=-1
+    }
+
+
+</script>
+</html>
