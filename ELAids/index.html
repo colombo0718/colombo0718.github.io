@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>English Learning Aids</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="jquery-ui/TechBlue.css">
+<style>
+
+#selectable .ui-selecting { color:#ff0000; }
+#selectable .ui-selected {color:#ff0000; }
+#selectable { list-style-type: none; margin: 0; padding: 0; width: 25%; }
+#selectable li { padding: 0.2em; padding-left: 0.5em;  height: 12px; }
+ul {
+	white-space: nowrap; 
+	/* 不斷行 */
+}
+
+.ui-slider .ui-slider-handle {
+	background:#aaaaff
+}
+.line{
+	color:#0000ff;
+	font-family:monospace;
+	font-size:14px;
+}
+
+li input{
+	/*width:360px;*/
+}
+
+::-webkit-scrollbar {
+    width: .0em;
+}
+
+</style>
+<script>
+$(function(){
+	var fs=require('fs');
+	var EventEmitter = require("events");
+	var ee = new EventEmitter();
+	var audio = new Audio();
+	var path,name,tail 
+	var len,pick,second 
+	var crTime=0,crPart=0
+	var jumpMotion
+	var waitSec=1000,reNumb=0,reTotl=1
+	var reol=false // read only
+	var newlrc=
+	'<li class="lyric"><font>00:00.00</font> <span>db-click to input</span><input type="text" class="ui-widget-content line"></input></li>'
+
+	$("#main").buttonset();
+	$("#sub").buttonset();
+
+	$( "#file" ).button({
+		icons:{primary:"ui-icon-folder-open"},
+		text: false
+	}).click(function() {
+		$('#music').trigger('click');
+	});
+
+	$('#music').change(function(){
+		path=$(this).prop('files')[0].path
+		name=$(this).prop('files')[0].name.split('.')[0]
+		tail=$(this).prop('files')[0].name.split('.')[1]
+		$('li.lyric').remove()
+		if(tail=='ogg'){
+			audio = new Audio(path.split('.')[0]+'.ogg');
+			audio.addEventListener('loadedmetadata',function(){
+				$('#output').html('[00:00.00] '+name)
+				$('#slider').slider("option","max",audio.duration)
+				$('li:last-child>font').html(sec2lrc(audio.duration)+' ')
+				$('li:last-child>span').html('The End')
+				second.push(audio.duration)
+				// second[len]=audio.duration-1
+				console.log(second)
+				$("#play").button( "enable" );
+				$("#mark").button( "enable" );
+				$("#kill").button( "enable" );
+			});
+
+			audio.addEventListener('timeupdate',function(){
+				crTime=audio.currentTime
+				$('#slider').slider('value',crTime)
+				$('#output').html('['+sec2lrc(crTime)+'] '+name)
+				for(var i=0;i<second.length-1;i++){
+					if(second[i]<=crTime&&crTime<second[i+1]){//!!!!!
+						if(i!=crPart){
+							audio.pause()
+							console.log(crTime)
+							jump()// ee.emit('jump')
+							console.log(i,crPart)
+						}
+						break
+					}
+				}
+				if(crTime==audio.duration){
+					jump()// ee.emit('jump')
+				}
+				$('li>span').css({'color':'#0000ff'})
+				$('li>span:eq('+crPart+')').css({'color':'#ff0000'})
+			})
+
+			if(fs.existsSync(path.split('.')[0]+'.lrc')){
+				fs.readFile(path.split('.')[0]+'.lrc','utf-8',function(err,data){
+					len=data.split('\n').length
+					second=new Array();
+					pick=new Array();
+					var tempTime,tempLine
+					for(var i=0;i<len;i++){
+						tempTime=data.split('\n')[i].split(']')[0].split('[')[1]
+						tempLine=data.split('\n')[i].split(']')[1]
+						if( tempTime==undefined||
+							tempLine==undefined){
+							continue
+						}
+						console.log(i,tempTime,lrc2sec(tempTime))
+						second.push(lrc2sec(tempTime))
+						pick.push(0)
+						$(newlrc).insertBefore($('li:last-child'))
+						$('li.lyric>font:eq('+i+')').html(tempTime)
+						$('li.lyric>span:eq('+i+')').html(tempLine)
+						// console.log($('li.lyric>font:last-child').length,i)
+						linePerform()
+					}
+					console.log(second)
+					len=pick.length
+					console.log(len)
+				})
+			}else{
+				$(newlrc).insertBefore($('li:last-child'))
+				$('li.lyric>font:eq(0)').html('00:00.00')
+				linePerform()
+				len=1
+				second=[0];
+				pick=[0];
+				$( "#save" ).button( "enable" )
+			}
+
+		}else{
+			audio = new Audio();
+			$('#output').html('[Err] Please open "ogg" audio file.')
+			$('li:last-child>font').html('mm:ss.xx')
+			$('li:last-child>span').html('Lyrics Region')
+		}	
+	});
+
+	// ee.on('jump',function(){
+	function jump(){	
+		console.log('jump')
+		audio.currentTime=second[crPart]
+		clearTimeout(jumpMotion)
+		jumpMotion=setTimeout(function(){
+			reNumb+=1
+			if(reNumb==reTotl){
+				console.log('change')
+				nextLine()
+			}
+			audio.currentTime=second[crPart]
+			audio.play()
+		},waitSec)
+	}	
+	// })
+
+	function nextLine(){
+		reNumb=0
+		for(var i=crPart+1;i<len;i++){
+			if(pick[i]==true){crPart=i;return 0}
+		}
+		for(var i=0;i<=crPart;i++){
+			if(pick[i]==true){crPart=i;return 0}
+		}
+		crPart=0	
+	}
+
+	$("#save").button({
+		icons: {primary:"ui-icon-disk"},
+		text: false
+	}).click(function(){
+		console.log('save clicked')
+		// makeLyric()
+		var lyric=''
+		for(var i=0;i<len;i++){
+			lyric+='['+$('li.lyric:eq('+i+')>font').html()+']'
+			+$('li.lyric:eq('+i+')>span').html()
+			if($('li.lyric:eq('+i+')>span').html().lastIndexOf("\n")<0){
+				lyric+='\n'
+			}
+		}
+		fs.writeFile(path.split('.')[0]+'.lrc',lyric)
+		$( "#save" ).button( "disable" );
+	})
+	$( "#save" ).button( "disable" );
+
+	$( "#play" ).button({	
+		icons: {primary: "ui-icon-play"},
+		text: false,
+	}).click(function(){
+		var options;
+		if($( this ).text()==="Play"){
+			$("#slider").slider( "option", "disabled", true )
+			$("#selectable").selectable( "option", "disabled", true )
+			$("#sets").button("disable")
+			$("#tips").button("disable")
+			$("#sets-div").hide()
+			$("#tips-div").hide()
+			$("#selectable").show()  
+			readOnly(true)
+			audio.play()
+			options = {
+				label:"Pause",
+				icons:{primary:"ui-icon-pause"}
+			};
+		}else{
+			$( "#slider" ).slider( "option", "disabled",false)
+			$( "#selectable" ).selectable( "option", "disabled",false)
+			$("#sets").button("enable")
+			$("#tips").button("enable")
+			clearTimeout(jumpMotion) 
+			readOnly(false)
+			audio.pause()
+			options = {
+				label:"Play",
+				icons:{primary:"ui-icon-play"}
+			};
+		}
+		$(this).button("option",options);
+	});
+	$("#play").button( "disable" );
+
+	$("#mark").button({
+		icons: {primary:"ui-icon-flag",},
+		text: false
+	}).click(function(){
+		console.log(crTime,second[crPart])
+		if(crTime==second[crPart]){return 0}	
+		console.log('aaa')
+		$(newlrc).insertAfter($('li:eq('+crPart+')')) 
+		$('li>font:eq('+(crPart-(-1))+')').html(sec2lrc(crTime))
+		pick.splice(crPart+1,0,0)
+		second.splice(crPart+1,0,crTime)
+		crPart+=1
+		len+=1
+		console.log(pick.join().replace(/,/g,''))
+		console.log(second)
+		linePerform()
+		$("#save").button("enable")
+	})
+	$("#mark").button( "disable" );
+
+	$("#kill").button({
+		icons: {primary:"ui-icon-trash",},
+		text: false
+	}).click(function(){
+		$( "#save" ).button("enable" )
+		$('li>font:eq('+(crPart-(-1))+')')
+		for(var i=0;i<len;i++){
+			if(pick[i]){
+				$('li:eq('+i+')').remove()
+				pick.splice(i,1)
+				second.splice(i,1)
+				console.log(pick.join().replace(/,/g,''))
+				console.log(second)
+				console.log(len)
+				crPart-=1
+				len-=1
+				return 0
+			}
+		}
+	})
+	$("#kill").button( "disable" );
+
+	$("#sets").button({
+		icons: {primary:"ui-icon-gear",},
+		text: false
+	}).click(function(){
+		$("#tips-div").hide()
+		if($("#sets-div").is(':visible')){
+			$("#sets-div").hide()
+			$("#selectable").show()
+		}else{
+			$("#sets-div").show()
+			$("#selectable").hide()
+		}
+	})
+	$("#sets-div").hide()
+
+	$("#tips").button({
+		icons: {primary:"ui-icon-help",},
+		text: false
+	}).click(function(){
+		$("#sets-div").hide()
+		if($("#tips-div").is(':visible')){
+			$("#tips-div").hide()
+			$("#selectable").show()
+		}else{
+			$("#tips-div").show()
+			$("#selectable").hide()
+		}
+	})
+	$("#tips-div").hide()
+
+	$('#slider').slider({
+		slide:function(event,ui){
+
+		},
+		stop :function(event,ui){
+			audio.currentTime=ui.value	
+			for(var i=0;i<second.length;i++){
+				if(second[i]>audio.currentTime){
+					crPart=i-1
+					break
+				}
+			}
+			reNumb=0
+		}
+	})
+
+	$( "#waSeco" ).spinner({spin:function(event,ui){
+		waitSec=ui.value*1000
+	},min:0,max:5}) 
+	$( "#reTime" ).spinner({spin:function(event,ui){
+		reTotl=ui.value
+	},min:1,max:5})
+	$( "#rdol" ).button()
+
+	$( "#selectable" ).selectable({
+		cancel:"span,input,li:last-child",
+		selecting: function(event,ui){
+			$('li>span').css({'color':'#0000ff'})
+		},
+		stop:function(){
+			var len=$("li").length
+			pick=new Array()
+			pick.length=len
+			for (var i=0;i<len;++i){
+				pick[i]=0
+			}
+			$(".ui-selected").each(function(){
+				var i=$("li").index(this)
+				if(i>-1){pick[i]=1}
+			})
+			console.log(pick.join().replace(/,/g,''))		
+		}
+	}); 
+
+	$('#box').height($(window).height()-130)
+	$('li input').css('width',$(window).width()-110)
+	console.log($(window).width()-110)
+	$( window ).resize(function() {
+		$('#box').height($(window).height()-130)
+		$('li input').css('width',$(window).width()-110)
+		console.log($(window).width()-110)
+	});
+
+	function linePerform(){
+		$('li.lyric>span').dblclick(function(){
+			$('li>input').hide()
+			$('li>span').show()
+			$(this).hide()
+			$(this).next().show()
+			$(this).next().val($(this).html())
+		})
+
+		$('li.lyric>input').keypress(function(){
+			if (event.keyCode == 13) {
+				$(this).hide()
+				$(this).prev().show()
+				if($(this).val().trim()==''){
+					$(this).prev().html('db-click to input')
+				}else{	
+					$(this).prev().html($(this).val()) 
+				}
+			}
+		}).blur(function(){
+				$(this).hide()
+				$(this).prev().show()
+				if($(this).val().trim()==''){
+					$(this).prev().html('db-click to input')
+				}else{	
+					$(this).prev().html($(this).val()) 
+				}
+		}).hide()
+	}
+	linePerform()
+
+
+	function sec2lrc(sec){
+		var min=Math.floor(sec/60)
+		if(min<10){min='0'+min}
+		var odd=Math.floor(100*(sec%60))/100
+		if(odd<10){odd='0'+odd}
+		odd=odd+''
+		if(odd.length==4){odd=odd+'0'}
+		if(odd.length==2){odd=odd+'.00'}
+		var lrc=min+':'+odd
+		return lrc
+	} 
+
+	function lrc2sec(lrc){
+		if(lrc.length==17){
+			lrc=[lrc[1],lrc[3],lrc[5],lrc[7],lrc[9],lrc[11],lrc[13],lrc[15],lrc[17]]
+			lrc=lrc.join().replace(/,/g,'')
+		}
+		// console.log(lrc)
+
+		var min=lrc.slice(0,2)
+		   ,odd=lrc.slice(3,8)
+		   // ,sec=
+		return Math.round((min*60+odd*1)*100)/100
+	}
+
+	function readOnly(tf){
+		$("#mark").button( "option", "disabled",tf)
+		$("#kill").button( "option", "disabled",tf)
+		$("li.lyric>span").unbind('dblclick')
+		if(!tf){linePerform()}
+	}
+
+});
+
+</script>
+</head>
+
+<body bgcolor="#ffffff" class='line'>
+
+<span id='main' style='font-family:Arial'>
+	<button id='file'>File</button>
+		<input  type="file" id='music' style="display:none" accept=".ogg"/>
+	<button id='save'>Save</button>
+	<button id="play">Play</button>
+	<button id='mark'>Mark</button>
+	<button id='kill'>Kill</button>
+	<button id='sets'>Sets</button>
+	<button id='tips'>Tips</button>
+</span>
+<!-- <span id='sub' style='font-family:Arial'>
+	<input type='radio' id='sets'>Sets</button>
+	<input type='radio' id='tips'>Tips</button>
+</span> -->
+<br> 
+<p id='output'> Welcome to English Learning Aids. </p>
+<div id="slider" ></div><br>
+
+<div id='box' class="ui-widget-header ui-corner-all" style='overflow-y:auto;overflow-x: hidden;height:330px'>
+<div style='padding:1em;' id="tips-div">
+	Hello user, this program has some limitations.<br>
+	Audio accepts [.ogg] file only. <br>
+	If you only have mp3 file, please google "mp3 to ogg".<br>
+	Text file only accept [utf-8] encoding. <br>
+	Wish you progress in English.<br><br>
+	&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp Colombo0718 2016/01/20<br><br>
+	
+
+	&nbsp&nbsp&nbsp____&nbsp&nbsp__&nbsp&nbsp&nbsp&nbsp&nbsp___&nbsp&nbsp&nbsp_&nbsp&nbsp&nbsp&nbsp__&nbsp&nbsp<br>
+	&nbsp&nbsp/&nbsp__/&nbsp/&nbsp/&nbsp&nbsp&nbsp&nbsp/&nbsp_&nbsp|&nbsp(_)__/&nbsp/__<br>
+	&nbsp/&nbsp_/&nbsp&nbsp/&nbsp/__&nbsp&nbsp/&nbsp__&nbsp|/&nbsp/&nbsp_&nbsp&nbsp(_-< <br>
+	/___/&nbsp/____/&nbsp/_/&nbsp|_/_/\_,_/___/
+
+</div>	
+<div style='padding:1em;' id="sets-div">
+	Wait Seconds :<input id="waSeco" style='width:2em' value="0"><br><br>
+	Repeat Times :<input id="reTime" style='width:2em' value="1"><br> <br>
+	Readonly Set :<button type='checkbox' id='rdol'> 
+</div>	
+<ul id="selectable">
+	<li><font>mm:ss.xx</font> <span style='color:#0000ff'>Lyrics Region</span></li>
+</ul>
+</div>
+</body>
+</html>
