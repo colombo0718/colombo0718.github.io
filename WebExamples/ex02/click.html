@@ -1,0 +1,47 @@
+<html>
+    <head>
+        <style>
+            #clk{width:50%;height:30%}
+            input{font-size:20px}
+        </style>
+    </head>
+    <body>
+        <input type="button" value="start" id="clk"><br>
+        <input type="button" value="reset" id="rst">
+    </body>
+    <script>
+        var num=0
+
+        document.getElementById("clk").onclick=function(){
+            if(sec>0){
+                num+=1
+                console.log(num)
+                document.getElementById("clk").value="num="+num
+            }else if(sec<0){
+                num=0
+                document.getElementById("clk").value="num="+num
+                sec=10
+            }
+        } 
+
+        var sec=-1
+
+        document.getElementById("rst").onclick=function(){
+            if(sec==0){
+                sec=-1
+                document.getElementById("clk").value="start"
+            }
+        }  
+
+        window.setInterval(function(){
+            if(sec>0){
+                sec-=1
+                console.log(sec)
+                document.getElementById("rst").value="sec="+sec
+            }else if(sec==0){
+                document.getElementById("rst").value="reset"
+            }
+        },1000)
+
+    </script>
+</html>
