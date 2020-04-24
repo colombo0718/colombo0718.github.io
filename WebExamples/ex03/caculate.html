@@ -1,0 +1,19 @@
+<html>
+	<head>
+	</head>
+	<body>
+		a=<input type="number" value=0 id='aaa'>
+		,b=<input type="number" value=0 id='bbb'>
+		<input type="button" value="計算" id='calc'>
+		<br>
+		答案:
+		<text id='ans'></text>
+	</body>
+	<script>	
+		document.getElementById('calc').onclick=function(){
+			var a=document.getElementById('aaa').value
+			var b=document.getElementById('bbb').value
+			document.getElementById('ans').innerHTML=parseInt(a)+parseInt(b)
+		}
+	</script>
+</html>
