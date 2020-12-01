@@ -74,12 +74,12 @@
             // v0.write(0)
             console.log("face")
             // fetch("http://blynk-cloud.com/s8UalOzfOY-Cex91g8gZdgFPcgaYc7_2/update/V0?value=0")
-            $.get("http://blynk-cloud.com/s8UalOzfOY-Cex91g8gZdgFPcgaYc7_2/update/V0?value=0")
+            $.ajax("http://blynk-cloud.com/s8UalOzfOY-Cex91g8gZdgFPcgaYc7_2/update/V0?value=0")
         }else if(prediction[1].probability>0.9){
             // v0.write(1)
             console.log("none")
             // fetch("http://blynk-cloud.com/s8UalOzfOY-Cex91g8gZdgFPcgaYc7_2/update/V0?value=1")
-            $.get("http://blynk-cloud.com/s8UalOzfOY-Cex91g8gZdgFPcgaYc7_2/update/V0?value=1")
+            $.ajax("http://blynk-cloud.com/s8UalOzfOY-Cex91g8gZdgFPcgaYc7_2/update/V0?value=1")
         }
     }
     
