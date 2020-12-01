@@ -5,7 +5,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
 <!-- <script src="blynk-browser.js"></script> -->
-<script src="https://github.com/colombo0718/colombo0718.github.io/tree/master/tryFaceRecog/blynk-browser.js"></script>
+<!-- <script src="https://github.com/colombo0718/colombo0718.github.io/tree/master/tryFaceRecog/blynk-browser.js"></script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script type="text/javascript">
     // More API functions here:
     // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
@@ -45,8 +46,8 @@
         }
     }
 
-    var blynk = new Blynk.Blynk('s8UalOzfOY-Cex91g8gZdgFPcgaYc7_2');
-    var v0 = new blynk.VirtualPin(0);
+    // var blynk = new Blynk.Blynk('s8UalOzfOY-Cex91g8gZdgFPcgaYc7_2');
+    // var v0 = new blynk.VirtualPin(0);
 
 
 
@@ -72,11 +73,13 @@
         if(prediction[0].probability>0.9){
             // v0.write(0)
             console.log("face")
-            fetch("http://blynk-cloud.com/s8UalOzfOY-Cex91g8gZdgFPcgaYc7_2/update/V0?value=0")
+            // fetch("http://blynk-cloud.com/s8UalOzfOY-Cex91g8gZdgFPcgaYc7_2/update/V0?value=0")
+            $.get("http://blynk-cloud.com/s8UalOzfOY-Cex91g8gZdgFPcgaYc7_2/update/V0?value=0")
         }else if(prediction[1].probability>0.9){
             // v0.write(1)
             console.log("none")
-            fetch("http://blynk-cloud.com/s8UalOzfOY-Cex91g8gZdgFPcgaYc7_2/update/V0?value=1")
+            // fetch("http://blynk-cloud.com/s8UalOzfOY-Cex91g8gZdgFPcgaYc7_2/update/V0?value=1")
+            $.get("http://blynk-cloud.com/s8UalOzfOY-Cex91g8gZdgFPcgaYc7_2/update/V0?value=1")
         }
     }
     
