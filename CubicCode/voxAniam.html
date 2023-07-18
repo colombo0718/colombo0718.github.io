@@ -70,7 +70,7 @@
                 currentIndex +=1
                 // 將新的物件顯示
                 meshes[currentIndex % meshes.length].visible = true;
-                anima.rotation.y=Math.PI/2
+                anima.rotation.y+=.02
                 renderer.render(scene, camera);
             },100)
         };
