@@ -1,0 +1,79 @@
+<div id="canvas" style="width: 800px;height: 600px;"></div>
+<input type="file" id="fileInput" accept=".vox" />
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://threejs.org/build/three.module.js",
+            "three/addons/": "https://threejs.org/examples/jsm/"
+        }
+    }
+</script>
+<script type="module">
+    import * as THREE from 'three';
+    import { VOXLoader, VOXMesh } from 'three/addons/loaders/VOXLoader.js';
+
+    const fileInput = document.getElementById('fileInput');
+    const canvas = document.getElementById('canvas');
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    canvas.appendChild(renderer.domElement);
+
+    // 設置相機
+    camera.position.y = 5/Math.sqrt(2);
+    camera.position.z = 5/Math.sqrt(2);
+    camera.rotation.x=-Math.PI/4
+
+    // 添加燈光
+    var ambientLight = new THREE.AmbientLight(0xffffff, .5); // 產生柔和的光
+    scene.add(ambientLight);
+
+    var directionalLight = new THREE.DirectionalLight(0xffffff, 1); // 產生方向光
+    directionalLight.position.set(1, 1, 0);
+    directionalLight.castShadow = true; // 讓此光能產生陰影
+    scene.add(directionalLight);
+    renderer.render(scene, camera);
+
+    // 讀取檔案後
+    fileInput.addEventListener('change', function (event) {
+        var file = event.target.files[0];
+        var reader = new FileReader();
+
+        reader.onload = function (event) {
+            var contents = event.target.result;
+            const loader = new VOXLoader();
+            var chunks= loader.parse(contents)
+            console.log(chunks)
+
+            const meshes = [];
+            var anima= new THREE.Object3D();
+            for ( let i = 0; i < chunks.length; i ++ ) {
+                // 讀入vox檔第i個子物件
+                const chunk = chunks[ i ];
+                const mesh = new VOXMesh( chunk );
+
+                mesh.scale.setScalar( .1 );
+                mesh.visible = false;
+
+                meshes.push(mesh);
+                anima.add( mesh );
+            }
+            scene.add(anima)
+
+            var currentIndex = 0;
+            setInterval(function() {
+                // 將前一個物件隱藏
+                meshes[currentIndex % meshes.length].visible = false;
+                currentIndex +=1
+                // 將新的物件顯示
+                meshes[currentIndex % meshes.length].visible = true;
+                anima.rotation.y=Math.PI/2
+                renderer.render(scene, camera);
+            },100)
+        };
+        reader.readAsArrayBuffer(file);
+    });
+</script>
